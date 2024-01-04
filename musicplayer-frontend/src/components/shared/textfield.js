@@ -1,7 +1,7 @@
-const textfield = ({label,placeholder,className}) => {
+const textfield = ({label,placeholder,className, value, setValue}) => {
   return (
     <div className={`textfieldsDiv flex flex-col space-y-2 w-full ${className}`}>
-      <label for={label} className="font-semibold">
+      <label htmlFor={label} className="font-semibold">
         {label}
       </label>
       <input
@@ -9,6 +9,10 @@ const textfield = ({label,placeholder,className}) => {
         placeholder={placeholder}
         className="p-3 border border-blue-600 border-solid rounded bg-gray-900 placeholder-grey-200 w-full"
         id={label}
+        value={value}
+        onChange={(e)=>{
+          setValue(e.target.value);
+        }}
       />
     </div>
   );

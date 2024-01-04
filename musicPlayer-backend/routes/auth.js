@@ -7,6 +7,7 @@ const { getToken } = require("../helper");
 //post route help to register userModel.
 router.post("/register", async (req, res) => {
   const { firstName, lastName, email, userName, password } = req.body;
+  console.log(password);
   const user = await User.findOne({ email: email });
   //if user already exist
   if (user) {
@@ -15,17 +16,18 @@ router.post("/register", async (req, res) => {
       .json({ error: "User with this email already exist" });
   }
   //for new user
-  const hashPassword = bcrypt.hash(password, 10);
+  const hashPassword = await bcrypt.hash(password, 10);
   const newUserData = {
     firstName,
     lastName,
     email,
     userName,
-    password: hashPassword,
+    password: hashPassword
   };
   const newUser = await User.create(newUserData);
   const token = await getToken(email, newUser);
   const userToReturn = { ...newUser.toJSON(), token };
+  console.log(userToReturn);
   delete userToReturn.password;
   return res.status(200).json(userToReturn);
 });

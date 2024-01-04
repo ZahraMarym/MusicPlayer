@@ -1,8 +1,10 @@
 import { Icon } from "@iconify/react";
 import Textfield from "../components/shared/textfield";
 import Password from "../components/shared/passwordfield";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import { makeUnauthenticatedPOSTRequest } from "../utils/serverHelper";
 const LoginComponent = () => {
   useEffect(() => {
     document.body.classList.add("bg-gray-900");
@@ -11,6 +13,30 @@ const LoginComponent = () => {
       document.body.classList.remove("bg-gray-900");
     };
   }, []);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [cookies, setCookie] = useCookies(["token"]);
+  const navigate = useNavigate();
+
+  const login = async () => {
+    const data = {
+      email,
+      password
+    };
+    const response = await makeUnauthenticatedPOSTRequest("/auth/login", data);
+    if (response && !response.err) {
+      const token = response.token;
+      const date = new Date();
+      date.setDate(date.getDate() + 30);
+      setCookie("token", token, { path: "/", expires: date });
+      alert("Success");
+      navigate("/home");
+    } else {
+      alert("Failure");
+    }
+  };
+
   return (
     <div className="w-screen h-screen flex flex-col items-center">
       <div className="logo p-5 border-b border-solid border-blue-600 w-full flex justify-center">
@@ -24,10 +50,20 @@ const LoginComponent = () => {
           label="Email ID or username"
           placeholder="Email address or username"
           className="my-2"
+          value={email}
+          setValue={setEmail}
         />
-        <Password label="Password" placeholder="Password" />
+        <Password
+          label="Password"
+          placeholder="Password"
+          value={password}
+          setValue={setPassword}
+        />
         <div className="w-full flex items-center justify-end my-8">
-          <button className="bg-blue-700 text-blue-50 font-semibold p-3 px-10 rounded-full">
+          <button className="bg-blue-700 text-blue-50 font-semibold p-3 px-10 rounded-full" onClick={(e)=>{
+            e.preventDefault();
+            login();
+          }}>
             LOG IN
           </button>
         </div>

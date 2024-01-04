@@ -11,10 +11,12 @@ const User = require("./models/User");
 const authRoutes=require("./routes/auth");
 const songRoutes = require("./routes/song");
 const playlistRoutes = require("./routes/playlist");
+const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const port = 8000;
 
+app.use(cors());
 app.use(express.json());
 //connecting to the database using mongoose
 mongoose
