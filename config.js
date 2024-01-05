@@ -1,0 +1,1 @@
+export const cloudinary_uplaod_preset = "de1z9822"
