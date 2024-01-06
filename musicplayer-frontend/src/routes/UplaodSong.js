@@ -1,13 +1,16 @@
 import { useEffect } from "react";
-import { Icon } from "@iconify/react";
 import IconTexts from "../components/shared/IconTexts";
 import HoverText from "../components/shared/hoverText";
 import Textfield from "../components/shared/textfield";
+import { makeAuthenticatedPOSTRequest } from "../utils/serverHelper";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Icon } from "@iconify/react";
 import CloudinaryUplaodComponent from "../components/shared/CloudinaryUplaod";
 
 const UplaodSong = () => {
-    console.log(window);
-    console.log(window.cloudinary);
+  console.log(window);
+  console.log(window.cloudinary);
   useEffect(() => {
     document.body.classList.add("bg-gray-900");
 
@@ -15,7 +18,22 @@ const UplaodSong = () => {
       document.body.classList.remove("bg-gray-900");
     };
   }, []);
+  const [name, setName] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
+  const [playlistUrl, setPlaylistUrl] = useState("");
+  const [uploadedSongFileName, setUploadedSongFileName] = useState();
+  const navigate = useNavigate();
 
+  const submitSong = async () => {
+    const data = { name, thumbnail, track: playlistUrl };
+    const response = await makeAuthenticatedPOSTRequest("/song/create", data);
+    if (response.err) {
+      alert("Could not create song");
+      return;
+    }
+    alert("Success");
+    navigate("/home");
+  };
   return (
     <div className="w-full h-full flex">
       <div className="h-full w-1/5 bg-black bg-opacity-40 flex flex-col justify-between pb-10">
@@ -85,21 +103,47 @@ const UplaodSong = () => {
           </div>
           <div className="w-2/3 flex space-x-3">
             <div className="w-1/2">
-              <Textfield label={"Name"} 
-              labelClassName={"text-white"} 
-              placeholder={"Name"}
+              <Textfield
+                label={"Name"}
+                labelClassName={"text-white"}
+                placeholder={"Name"}
+                value={name}
+                setValue={setName}
+                className={"text-blue-700"}
               />
             </div>
             <div className="w-1/2">
-              <Textfield label={"Thumbnail"} 
-              labelClassName={"text-white"} 
-              placeholder={"Thumbnail"}
+              <Textfield
+                label={"Thumbnail"}
+                labelClassName={"text-white"}
+                placeholder={"Thumbnail"}
+                value={thumbnail}
+                setValue={setThumbnail}
+                className={"text-blue-700"}
               />
             </div>
           </div>
-          <div className="pt-5">
-                <CloudinaryUplaodComponent/>
-            </div>
+          <div className="py-5">
+            {uploadedSongFileName ? (
+              <div className="bg-transparent border border-blue-700 text-white rounded-full p-3 w-1/3">
+                <IconTexts
+                  iconName={"akar-icons:play"}
+                  displayText={uploadedSongFileName.substring(0, 35)}
+                />
+              </div>
+            ) : (
+              <CloudinaryUplaodComponent
+                setUrl={setPlaylistUrl}
+                setName={setUploadedSongFileName}
+              />
+            )}
+          </div>
+          <div
+            className="bg-blue-700 text-white w-40 flex items-center justify-center p-4 rounded-full cursor-pointer font-semibold"
+            onClick={submitSong}
+          >
+            Submit Song
+          </div>
         </div>
       </div>
     </div>

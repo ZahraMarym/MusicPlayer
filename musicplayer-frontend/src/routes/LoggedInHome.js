@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Icon } from "@iconify/react";
 import IconTexts from "../components/shared/IconTexts";
 import HoverText from "../components/shared/hoverText";
+import { Link } from "react-router-dom";
+
 
 const focusCardsData = [
   {
@@ -134,7 +136,7 @@ const LoggedInHome = () => {
               <div className="h-1/2 border-r border-gray-400"></div>
             </div>
             <div className="w-1/3 flex justify-around h-full items-center">
-              <HoverText displayText={"Upload Songs"} />
+            <Link to="/uplaodSongs"><HoverText displayText={"Upload Songs"} /></Link>
               <div className="bg-blue-700 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold">
                 ZM
               </div>
