@@ -29,8 +29,9 @@ export const makeAuthenticatedPOSTRequest = async (route, body) => {
 
 export const makeAuthenticatedGETRequest = async (route) => {
     console.log(backendURL+route);
-    const token = getToken();
-    const response = await fetch(backendURL + route, {
+    const token = getToken()
+    const response = await fetch(backendURL+route, 
+        {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -39,6 +40,7 @@ export const makeAuthenticatedGETRequest = async (route) => {
     });
     const formattedResponse = await response.json();
     return formattedResponse;
+
 };
 
 const getToken = () => {

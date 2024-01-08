@@ -90,7 +90,7 @@ const UplaodSong = () => {
               <div className="h-1/2 border-r border-gray-400"></div>
             </div>
             <div className="w-1/3 flex justify-around h-full items-center">
-              <HoverText displayText={"Upload Songs"} />
+              <HoverText displayText={"Upload Songs"} active/>
               <div className="bg-blue-700 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold">
                 ZM
               </div>

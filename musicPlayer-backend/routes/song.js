@@ -20,10 +20,8 @@ router.post("/create", passport.authenticate("jwt",{session:false}),async (req,r
 
 router.get('/get/mySongs',passport.authenticate("jwt",{session:false}), async (req,res) =>{
     const currentUser=req.user;
-    const songs = await Song.find({artist: req.user._id});
+    const songs = await Song.find({artist: req.user._id}).populate("artist");
     return res.status(200).json(songs);
-
-
 });
 //route to get songs of any artist
 router.get("/get/artist/:artistId",passport.authenticate("jwt",{session:false}), async (req,res) =>{

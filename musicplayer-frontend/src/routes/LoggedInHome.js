@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { Icon } from "@iconify/react";
 import IconTexts from "../components/shared/IconTexts";
 import HoverText from "../components/shared/hoverText";
 import { Link } from "react-router-dom";
-
+import { useState } from "react";
+import { Icon } from "@iconify/react";
+import { Howl, Howler } from "howler";
 
 const focusCardsData = [
   {
@@ -72,6 +73,32 @@ const spotifyPlaylistsCardData = [
 ];
 
 const LoggedInHome = () => {
+  const [soundPlayed, serSountPlayed] = useState(null);
+  const [isPaused, setIsPaused] = useState(true);
+  const playSound = (songSrc) => {
+    if (soundPlayed) {
+      soundPlayed.stop();
+    }
+    var sound = new Howl({
+      src: [songSrc],
+    });
+    serSountPlayed(sound);
+    sound.play();
+    console.log(soundPlayed);
+  };
+
+  const pausedSong = () =>{
+    soundPlayed.pause();
+  };
+  const togglePlayPause =()=>{
+    if(isPaused){
+      playSound("https://res.cloudinary.com/dgd1aq2fy/video/upload/v1704531140/vd55zo65ftzs2f3uqrrf.mp4");
+    }
+    else{
+      pausedSong();
+    }
+  };
+
   useEffect(() => {
     document.body.classList.add("bg-gray-900");
 
@@ -81,76 +108,127 @@ const LoggedInHome = () => {
   }, []);
 
   return (
-    <div className="w-full h-full flex">
-      <div className="h-full w-1/5 bg-black bg-opacity-40 flex flex-col justify-between pb-10">
-        <div>
-          <div className="logoDiv p-5">
-            <Icon
-              icon="arcticons:simplemusicplayer"
-              color="#1c3db6"
-              width="85"
-            />
-          </div>
-          <div className="py-5">
-            <IconTexts
-              iconName={"material-symbols-light:home"}
-              displayText={"Home"}
-            />
-            <IconTexts
-              iconName={"material-symbols:search"}
-              displayText={"Search"}
-              active
-            />
-            <IconTexts
-              iconName={"fluent:library-16-regular"}
-              displayText={"Your Library"}
-            />
-            <IconTexts
-              iconName={"lets-icons:music-light"}
-              displayText={"My Music"}
-            />
-          </div>
-          
-          <div className="pt-5">
-            <IconTexts
-              iconName={"ph:plus-fill"}
-              displayText={"Create Playlist"}
-            />
-            <IconTexts iconName={"lucide:heart"} displayText={"Liked Songs"} />
-          </div>
-        </div>
-        <div className="px-5">
-          <div className="border border-blue-900 w-2/5 text-white flex px-2 py-1 rounded-full items-center justify-center cursor-pointer hover:border-white">
-            <Icon icon="material-symbols-light:globe" color="white" />
-            <div className="ml-2 text-sm font-semibold">English</div>
-          </div>
-        </div>
-      </div>
-      <div className="h-full w-4/5 overflow-auto">
-        <div className="navbar w-full flex h-1/10 bg-black text-white bg-opacity-20 items-center justify-end">
-          <div className="w-1/2 h-full flex ">
-            <div className="w-2/3 flex justify-around items-center">
-              <HoverText displayText={"Premium"} />
-              <HoverText displayText={"Support"} />
-              <HoverText displayText={"Download"} />
-              <div className="h-1/2 border-r border-gray-400"></div>
+    <div className="w-full h-full bg-transparent">
+      <div className="h-9/10 w-full flex">
+        <div className="h-full w-1/5 bg-black bg-opacity-40 flex flex-col justify-between pb-10">
+          <div>
+            <div className="logoDiv p-5">
+              <Icon
+                icon="arcticons:simplemusicplayer"
+                color="#1c3db6"
+                width="85"
+              />
             </div>
-            <div className="w-1/3 flex justify-around h-full items-center">
-            <Link to="/uplaodSongs"><HoverText displayText={"Upload Songs"} /></Link>
-              <div className="bg-blue-700 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold">
-                ZM
+            <div className="py-5">
+              <IconTexts
+                iconName={"material-symbols-light:home"}
+                displayText={"Home"}
+              />
+              <IconTexts
+                iconName={"material-symbols:search"}
+                displayText={"Search"}
+                active
+              />
+              <IconTexts
+                iconName={"fluent:library-16-regular"}
+                displayText={"Your Library"}
+              />
+              <IconTexts
+                iconName={"lets-icons:music-light"}
+                displayText={"My Music"}
+              />
+            </div>
+
+            <div className="pt-5">
+              <IconTexts
+                iconName={"ph:plus-fill"}
+                displayText={"Create Playlist"}
+              />
+              <IconTexts
+                iconName={"lucide:heart"}
+                displayText={"Liked Songs"}
+              />
+            </div>
+          </div>
+          <div className="px-5">
+            <div className="border border-blue-900 w-2/5 text-white flex px-2 py-1 rounded-full items-center justify-center cursor-pointer hover:border-white">
+              <Icon icon="material-symbols-light:globe" color="white" />
+              <div className="ml-2 text-sm font-semibold">English</div>
+            </div>
+          </div>
+        </div>
+        <div className="h-full w-4/5 overflow-auto">
+          <div className="navbar w-full flex h-1/10 bg-black text-white bg-opacity-20 items-center justify-end">
+            <div className="w-1/2 h-full flex ">
+              <div className="w-2/3 flex justify-around items-center">
+                <HoverText displayText={"Premium"} />
+                <HoverText displayText={"Support"} />
+                <HoverText displayText={"Download"} />
+                <div className="h-1/2 border-r border-gray-400"></div>
+              </div>
+              <div className="w-1/3 flex justify-around h-full items-center">
+                <Link to="/uplaodSongs">
+                  <HoverText displayText={"Upload Songs"} />
+                </Link>
+                <div className="bg-blue-700 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold">
+                  ZM
+                </div>
               </div>
             </div>
           </div>
+          <div className="content p-5 pt-0 overflow-auto">
+            <PlaylistView titleText="Focus" cardsData={focusCardsData} />
+            <PlaylistView
+              titleText="Spotify Playlists"
+              cardsData={spotifyPlaylistsCardData}
+            />
+          </div>
         </div>
-        <div className="content p-5 pt-0 overflow-auto">
-          <PlaylistView titleText="Focus" cardsData={focusCardsData} />
-          <PlaylistView
-            titleText="Spotify Playlists"
-            cardsData={spotifyPlaylistsCardData}
+      </div>
+      <div className="w-full h-1/10 bg-black bg-opacity-30 rounded-md px-4 flex text-blue-700 items-center px-4 border-t border-blue-900">
+        <div className="w-1/4 flex items-center">
+          <img
+            src="https://images.unsplash.com/photo-1558021212-51b6ecfa0db9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1766&q=80"
+            alt="thumbnail"
+            className="h-14 w-14 rounded-lg"
           />
-          <PlaylistView titleText="Sound of India" cardsData={focusCardsData} />
+          <div className="ml-3 hover:underline cursor-pointer">
+            <div className="text-sm">Curtains</div>
+            <div className="text-xs">Ed SHeeren</div>
+          </div>
         </div>
+        <div className="w-2/4 flex flex-col justify-center items-center h-full">
+          <div className="flex w-1/3 justify-between">
+            <Icon
+              icon="lucide:shuffle"
+              width="23"
+              className="cursor-pointer hover:text-gray-800"
+            />
+            <Icon
+              icon="fluent:previous-20-filled"
+              width="26"
+              className="cursor-pointer hover:text-gray-800"
+            />
+            <Icon
+              icon="mdi:pause"
+              width="30"
+              className="cursor-pointer hover:text-gray-800"
+              onClick={togglePlayPause()}
+            />
+            <Icon
+              icon="teenyicons:next-solid"
+              width="26"
+              className="cursor-pointer hover:text-gray-800"
+            />
+            <Icon
+              icon="ion:repeat-sharp"
+              width="29"
+              className="cursor-pointer hover:text-gray-800"
+            />
+          </div>
+          <div>Progress bar</div>
+        </div>
+        <div className="w-1/4 flex justify-end">hello</div>
       </div>
     </div>
   );
