@@ -1,4 +1,5 @@
-import { createContext } from "react";
+import {createContext} from "react";
+
 const songContext = createContext({
     currentSong: null,
     setCurrentSong: (currentSong) => {},
@@ -7,4 +8,5 @@ const songContext = createContext({
     isPaused: null,
     setIsPaused: () => {},
 });
+
 export default songContext;
