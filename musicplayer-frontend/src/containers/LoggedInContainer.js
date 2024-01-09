@@ -11,7 +11,7 @@ import { useRef } from "react";
 import CreatePlaylistModals from "../modals/CreatePlaylistModals";
 
 const LoggedInContainer = ({ children, currentActiveScreen }) => {
-  const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(true);
+  const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false);
   const {
     currentSong,
     setCurrentSong,
