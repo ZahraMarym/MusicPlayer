@@ -10,6 +10,7 @@ import UplaodSongComponent from "./routes/UplaodSong";
 import MyMusicComponent from "./routes/MyMusics";
 import songContext from "./contexts/songContext";
 import { useState } from "react";
+import SearchComponent from "./routes/Searchpage"
 
 function App() {
   const [currentSong, setCurrentSong] = useState(null);
@@ -37,6 +38,7 @@ function App() {
             <Route path="*" element={<Navigate to="/home" />} />
             <Route path="/uplaodSongs" element={<UplaodSongComponent />} />
             <Route path="/MyMusic" element={<MyMusicComponent />} />
+            <Route path="/Search" element={<SearchComponent />} />
           </Routes>
           </songContext.Provider>
         ) : (

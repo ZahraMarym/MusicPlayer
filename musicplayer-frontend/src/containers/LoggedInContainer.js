@@ -8,9 +8,10 @@ import { Howl, Howler } from "howler";
 import { useContext } from "react";
 import songContext from "../contexts/songContext";
 import { useRef } from "react";
+import CreatePlaylistModals from "../modals/CreatePlaylistModals";
 
-
-const LoggedInContainer = ({children, currentActiveScreen}) => {
+const LoggedInContainer = ({ children, currentActiveScreen }) => {
+  const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(true);
   const {
     currentSong,
     setCurrentSong,
@@ -18,27 +19,26 @@ const LoggedInContainer = ({children, currentActiveScreen}) => {
     setSoundPlayed,
     isPaused,
     setIsPaused,
-} = useContext(songContext);
+  } = useContext(songContext);
   const firstUpdate = useRef(true);
 
-  
   useLayoutEffect(() => {
     // the following if statement will prevent the useEffect from running on the first render.
     if (firstUpdate.current) {
-        firstUpdate.current = false;
-        return;
+      firstUpdate.current = false;
+      return;
     }
 
     if (!currentSong) {
-        return;
+      return;
     }
     changeSong(currentSong.track);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [currentSong && currentSong.track]);
+  }, [currentSong && currentSong.track]);
 
-  const playSound = () =>{
+  const playSound = () => {
     if (!soundPlayed) {
-        return;
+      return;
     }
     soundPlayed.play();
   };
@@ -71,7 +71,14 @@ const LoggedInContainer = ({children, currentActiveScreen}) => {
   };
   return (
     <div className="w-full h-full">
-      <div className={`${currentSong? "h-9/10" : "h-full"} w-full flex`}>
+      {createPlaylistModalOpen && (
+                <CreatePlaylistModals
+                    closeModal={() => {
+                        setCreatePlaylistModalOpen(false);
+                    }}
+                />
+            )}
+      <div className={`${currentSong ? "h-9/10" : "h-full"} w-full flex`}>
         <div className="h-full w-1/5 bg-black bg-opacity-40 flex flex-col justify-between pb-10">
           <div>
             <div className="logoDiv p-5">
@@ -86,25 +93,25 @@ const LoggedInContainer = ({children, currentActiveScreen}) => {
                 iconName={"material-symbols-light:home"}
                 displayText={"Home"}
                 targetLink={"/home"}
-                active={currentActiveScreen==="home"}
+                active={currentActiveScreen === "home"}
               />
               <IconTexts
                 iconName={"material-symbols:search"}
                 displayText={"Search"}
                 targetLink={"/Search"}
-                active={currentActiveScreen==="Search"}
+                active={currentActiveScreen === "Search"}
               />
               <IconTexts
                 iconName={"fluent:library-16-regular"}
                 displayText={"Your Library"}
                 targetLink={"/Library"}
-                active={currentActiveScreen==="Library"}
+                active={currentActiveScreen === "Library"}
               />
               <IconTexts
                 iconName={"lets-icons:music-light"}
                 displayText={"My Music"}
                 targetLink={"/MyMusic"}
-                active={currentActiveScreen==="MyMusic"}
+                active={currentActiveScreen === "MyMusic"}
               />
             </div>
 
@@ -112,14 +119,15 @@ const LoggedInContainer = ({children, currentActiveScreen}) => {
               <IconTexts
                 iconName={"ph:plus-fill"}
                 displayText={"Create Playlist"}
-                targetLink=""
-                active={currentActiveScreen==="CreatePlaylist"}
+                onClick={() => {
+                  setCreatePlaylistModalOpen(true);
+              }}
               />
               <IconTexts
                 iconName={"lucide:heart"}
                 displayText={"Liked Songs"}
                 targetLink=""
-                active={currentActiveScreen==="LikedSong"}
+                active={currentActiveScreen === "LikedSong"}
               />
             </div>
           </div>
@@ -149,63 +157,62 @@ const LoggedInContainer = ({children, currentActiveScreen}) => {
               </div>
             </div>
           </div>
-          <div className="content p-5 pt-0 overflow-auto">
-           {children}
-          </div>
+          <div className="content p-5 pt-0 overflow-auto">{children}</div>
         </div>
       </div>
-      {
-        currentSong &&
+      {currentSong && (
         <div className="w-full h-1/10 bg-black bg-opacity-30 rounded-md px-4 flex text-blue-700 items-center px-4 border-t border-blue-900">
-        <div className="w-1/4 flex items-center">
-          <img
-            src={currentSong.thumbnail}
-            alt="thumbnail"
-            className="h-14 w-14 rounded-lg"
-          />
-          <div className="ml-3 hover:underline cursor-pointer">
-            <div className="text-sm">{currentSong.name}</div>
-            <div className="text-xs">{currentSong.artist.firstName+" "+currentSong.artist.lastName}</div>
+          <div className="w-1/4 flex items-center">
+            <img
+              src={currentSong.thumbnail}
+              alt="thumbnail"
+              className="h-14 w-14 rounded-lg"
+            />
+            <div className="ml-3 hover:underline cursor-pointer">
+              <div className="text-sm">{currentSong.name}</div>
+              <div className="text-xs">
+                {currentSong.artist.firstName +
+                  " " +
+                  currentSong.artist.lastName}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="w-2/4 flex flex-col justify-center items-center h-full">
-          <div className="flex w-1/3 justify-between">
-            <Icon
-              icon="lucide:shuffle"
-              width="23"
-              className="cursor-pointer hover:text-gray-800"
-            />
-            <Icon
-              icon="fluent:previous-20-filled"
-              width="26"
-              className="cursor-pointer hover:text-gray-800"
-            />
-            <Icon
-              icon={isPaused ? "gravity-ui:play" : "gravity-ui:pause"}
-              width="30"
-              className="cursor-pointer hover:text-gray-800"
-              onClick={togglePlayPause}
-            />
-            <Icon
-              icon="teenyicons:next-solid"
-              width="26"
-              className="cursor-pointer hover:text-gray-800"
-            />
-            <Icon
-              icon="ion:repeat-sharp"
-              width="29"
-              className="cursor-pointer hover:text-gray-800"
-            />
+          <div className="w-2/4 flex flex-col justify-center items-center h-full">
+            <div className="flex w-1/3 justify-between">
+              <Icon
+                icon="lucide:shuffle"
+                width="23"
+                className="cursor-pointer hover:text-gray-800"
+              />
+              <Icon
+                icon="fluent:previous-20-filled"
+                width="26"
+                className="cursor-pointer hover:text-gray-800"
+              />
+              <Icon
+                icon={isPaused ? "gravity-ui:play" : "gravity-ui:pause"}
+                width="30"
+                className="cursor-pointer hover:text-gray-800"
+                onClick={togglePlayPause}
+              />
+              <Icon
+                icon="teenyicons:next-solid"
+                width="26"
+                className="cursor-pointer hover:text-gray-800"
+              />
+              <Icon
+                icon="ion:repeat-sharp"
+                width="29"
+                className="cursor-pointer hover:text-gray-800"
+              />
+            </div>
+            <div></div>
           </div>
-          <div></div>
+          <div className="w-1/4 flex justify-end">hello</div>
         </div>
-        <div className="w-1/4 flex justify-end">hello</div>
-      </div>
-      }
+      )}
     </div>
   );
 };
-
-
 
 export default LoggedInContainer;

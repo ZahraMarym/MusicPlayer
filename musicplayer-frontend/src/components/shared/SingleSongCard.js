@@ -4,7 +4,7 @@ const SingleSongCard = ({ info, playSound }) => {
   const { currentSong, setCurrentSong } = useContext(songContext);
   return (
     <div
-      className="flex border border-gray-900  hover:border-blue-800 hover:bg-black hover:bg-opacity-30 p-2 rounded-sm"
+      className={`flex border ${(currentSong===info)?"border-blue-800 bg-black bg-opacity-30":"border-gray-900"} hover:border-blue-800 hover:bg-black hover:bg-opacity-30 p-2 rounded-sm`}
       onClick={() => {
         setCurrentSong(info);
       }}

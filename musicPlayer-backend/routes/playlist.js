@@ -11,7 +11,7 @@ router.post(
   async (req, res) => {
     const currentUser = req.user;
     const { name, thumbnail, songs } = req.body;
-    if (!name || !thumbnail || !songs) {
+    if (!name || !thumbnail) {
       return res.status(400).json({ error: "Missing fields" });
     }
     const playtlistData = {
