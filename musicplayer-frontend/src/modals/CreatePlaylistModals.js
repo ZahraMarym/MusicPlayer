@@ -22,7 +22,7 @@ const CreatePlaylistModals = ({closeModal}) => {
         onClick={closeModal}
     >
         <div
-            className="bg-black text-gray-400 bg-opacity-95 w-1/3 rounded-md p-8"
+            className="bg-black text-gray-400 bg-opacity-50 w-1/3 rounded-md p-8"
             onClick={(e) => {
                 e.stopPropagation();
             }}

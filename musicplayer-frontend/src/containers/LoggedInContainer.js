@@ -2,16 +2,30 @@ import { useLayoutEffect } from "react";
 import IconTexts from "../components/shared/IconTexts";
 import HoverText from "../components/shared/hoverText";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { Howl, Howler } from "howler";
 import { useContext } from "react";
 import songContext from "../contexts/songContext";
 import { useRef } from "react";
 import CreatePlaylistModals from "../modals/CreatePlaylistModals";
-
+import AddToPlaylistModal from "../modals/AddToPlaylistModal";
+import { makeAuthenticatedPOSTRequest } from "../utils/serverHelper";
 const LoggedInContainer = ({ children, currentActiveScreen }) => {
+  //formating time
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    const formattedSeconds = String(remainingSeconds).padStart(2, "0");
+    return `${formattedMinutes}:${formattedSeconds}`;
+  };
+
   const [createPlaylistModalOpen, setCreatePlaylistModalOpen] = useState(false);
+  const [addToPlaylistModalOpen, setAddToPlaylistModalOpen] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [timer, setTimer] = useState(0);
+  const [volume, setVolume] = useState(50); // Initial volume percentage
   const {
     currentSong,
     setCurrentSong,
@@ -35,6 +49,43 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     changeSong(currentSong.track);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSong && currentSong.track]);
+
+  const addSongToPlaylist = async (playlistId) => {
+    const songId = currentSong._id;
+
+    const payload = { playlistId, songId };
+    const response = await makeAuthenticatedPOSTRequest(
+      "/playlist/add/song",
+      payload
+    );
+    if (response._id) {
+      setAddToPlaylistModalOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (soundPlayed) {
+      soundPlayed.on("load", () => {
+        setDuration(soundPlayed.duration());
+        setTimer(0);
+
+        // Start a timer to update the progress every second
+        const intervalId = setInterval(() => {
+          if (!isPaused && soundPlayed.playing()) {
+            setTimer((prevTimer) => prevTimer + 1);
+          }
+        }, 1000);
+        soundPlayed.on("end", () => {
+          setTimer(0);
+          setIsPaused(true);
+        });
+
+        return () => {
+          clearInterval(intervalId);
+        };
+      });
+    }
+  }, [soundPlayed, isPaused, setIsPaused]);
 
   const playSound = () => {
     if (!soundPlayed) {
@@ -64,20 +115,97 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     if (isPaused) {
       playSound();
       setIsPaused(false);
+    } else if (duration === timer) {
+      setIsPaused(true);
     } else {
       pausedSound();
       setIsPaused(true);
     }
   };
+
+  //progress bar
+  const handleSeek = (e) => {
+    const newTime = parseFloat(e.target.value);
+    setCurrentTime(newTime);
+    soundPlayed.seek(newTime);
+  };
+  // progress bar
+  const [currentTime, setCurrentTime] = useState(0);
+  useEffect(() => {
+    if (soundPlayed) {
+      // Update the duration when the sound is loaded
+      soundPlayed.on("load", () => {
+        setDuration(soundPlayed.duration());
+      });
+
+      // Update the current time during playback
+      soundPlayed.on("play", () => {
+        const updateCurrentTime = () => {
+          setCurrentTime(soundPlayed.seek());
+          if (soundPlayed.playing()) {
+            requestAnimationFrame(updateCurrentTime);
+          }
+        };
+
+        updateCurrentTime();
+      });
+
+      // Clear current time when the sound is paused or stopped
+      soundPlayed.on("pause", () => {
+        setCurrentTime(0);
+      });
+
+      soundPlayed.on("stop", () => {
+        setCurrentTime(0);
+      });
+
+      // Clear event listeners on component unmount
+      return () => {
+        soundPlayed.off("load");
+        soundPlayed.off("play");
+        soundPlayed.off("pause");
+        soundPlayed.off("stop");
+      };
+    }
+  }, [soundPlayed]);
+
+  const handleDownload = () => {
+    // Check if a song URL is available
+    if (!currentSong) {
+      alert("Select a song to Download");
+    } else {
+      const downloadLink = document.createElement("a");
+      downloadLink.href = currentSong.track;
+      downloadLink.download = currentSong.track; // Provide a custom filename
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+  //volume button
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    soundPlayed.volume(newVolume / 100); // Convert percentage to decimal
+  };
+
   return (
     <div className="w-full h-full">
       {createPlaylistModalOpen && (
-                <CreatePlaylistModals
-                    closeModal={() => {
-                        setCreatePlaylistModalOpen(false);
-                    }}
-                />
-            )}
+        <CreatePlaylistModals
+          closeModal={() => {
+            setCreatePlaylistModalOpen(false);
+          }}
+        />
+      )}
+      {addToPlaylistModalOpen && (
+        <AddToPlaylistModal
+          closeModal={() => {
+            setAddToPlaylistModalOpen(false);
+          }}
+          addSongToPlaylist={addSongToPlaylist}
+        />
+      )}
       <div className={`${currentSong ? "h-9/10" : "h-full"} w-full flex`}>
         <div className="h-full w-1/5 bg-black bg-opacity-40 flex flex-col justify-between pb-10">
           <div>
@@ -121,7 +249,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 displayText={"Create Playlist"}
                 onClick={() => {
                   setCreatePlaylistModalOpen(true);
-              }}
+                }}
               />
               <IconTexts
                 iconName={"lucide:heart"}
@@ -144,7 +272,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
               <div className="w-2/3 flex justify-around items-center">
                 <HoverText displayText={"Premium"} />
                 <HoverText displayText={"Support"} />
-                <HoverText displayText={"Download"} />
+                <HoverText displayText={"Download"} onClick={handleDownload} />
                 <div className="h-1/2 border-r border-gray-400"></div>
               </div>
               <div className="w-1/3 flex justify-around h-full items-center">
@@ -160,6 +288,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
           <div className="content p-5 pt-0 overflow-auto">{children}</div>
         </div>
       </div>
+
+      {/* progress bar */}
+
       {currentSong && (
         <div className="w-full h-1/10 bg-black bg-opacity-30 rounded-md px-4 flex text-blue-700 items-center px-4 border-t border-blue-900">
           <div className="w-1/4 flex items-center">
@@ -206,9 +337,56 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 className="cursor-pointer hover:text-gray-800"
               />
             </div>
-            <div></div>
+            <div>
+              <div className="flex w-full justify-center">
+                <div className="flex justify-between">
+                  <div className="mx-3">{formatTime(timer)}</div>
+                  <div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={duration}
+                      value={timer}
+                      onChange={handleSeek}
+                      className="bg-gray-900 appearance-none h-2 w-96 text-black rounded-md overflow-hidden"
+                      style={{
+                        background: `linear-gradient(to right, #4a5568 ${
+                          (timer / duration) * 100
+                        }%, #1a202c 0%)`,
+                      }}
+                    />
+                  </div>
+                  <div className="mx-3">{formatTime(duration)}</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="w-1/4 flex justify-end">hello</div>
+
+          <div className="w-1/4 flex justify-end pr-4 space-x-4 items-center">
+            <div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={volume}
+                onChange={handleVolumeChange}
+                className="bg-gray-900 appearance-none h-3 w-full md:w-32 rounded-md overflow-hidden"
+              />
+            </div>
+            <Icon
+              icon="ic:round-playlist-add"
+              fontSize={30}
+              className="cursor-pointer text-gray-500 hover:text-white"
+              onClick={() => {
+                setAddToPlaylistModalOpen(true);
+              }}
+            />
+            <Icon
+              icon="ph:heart-bold"
+              fontSize={25}
+              className="cursor-pointer text-gray-500 hover:text-white"
+            />
+          </div>
         </div>
       )}
     </div>

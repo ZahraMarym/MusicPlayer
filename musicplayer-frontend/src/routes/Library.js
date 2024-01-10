@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import LoggedInContainer from "../containers/LoggedInContainer";
 import { makeAuthenticatedGETRequest } from "../utils/serverHelper";
+import {useNavigate} from "react-router-dom";
+
 const Library = () => {
   const [myPlaylists, setMyPlaylists] = useState([]);
   useEffect(() => {
@@ -32,9 +33,14 @@ const Library = () => {
   );
 };
 
-const Card = ({ title, description, imgUrl }) => {
+const Card = ({ title, description, imgUrl , playlistId}) => {
+  const navigate = useNavigate();
   return (
-    <div className="bg-black bg-opacity-40 w-full p-4 rounded-lg">
+    <div className="bg-black bg-opacity-40 w-full p-4 rounded-lg"
+    onClick={() => {
+      navigate("/playlist/" + playlistId);
+      console.log("")
+  }}>
       <div className="pb-4 pt-2">
         <img className="w-full rounded-md" src={imgUrl} alt="label" />
       </div>

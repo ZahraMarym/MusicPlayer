@@ -4,14 +4,15 @@ import LoginComponent from "./routes/Login";
 import SignupComponent from "./routes/Signup";
 import HomeComponent from "./routes/home";
 import LoggedInHomeComponent from "./routes/LoggedInHome";
-import { BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import UplaodSongComponent from "./routes/UplaodSong";
 import MyMusicComponent from "./routes/MyMusics";
 import songContext from "./contexts/songContext";
 import { useState } from "react";
-import SearchComponent from "./routes/Searchpage"
+import SearchComponent from "./routes/Searchpage";
 import LibraryComponent from "./routes/Library";
+import SinglePlayListView from "./routes/SinglePlayListView";
 
 function App() {
   const [currentSong, setCurrentSong] = useState(null);
@@ -23,25 +24,29 @@ function App() {
     <div className="bg-gray-900 w-screen h-screen font-philosopher">
       <BrowserRouter>
         {cookie.token ? (
-           <songContext.Provider
-           value={{
-               currentSong,
-               setCurrentSong,
-               soundPlayed,
-               setSoundPlayed,
-               isPaused,
-               setIsPaused,
-           }}
-       >
-          <Routes>
-            <Route path="/" element={<HomeComponent />} />
-            <Route path="/home" element={<LoggedInHomeComponent />} />
-            <Route path="/uplaodSongs" element={<UplaodSongComponent />} />
-            <Route path="/MyMusic" element={<MyMusicComponent />} />
-            <Route path="/Search" element={<SearchComponent />} />
-            <Route path="/Library" element={<LibraryComponent />} />
-            <Route path="*" element={<Navigate to="/home" />} />
-          </Routes>
+          <songContext.Provider
+            value={{
+              currentSong,
+              setCurrentSong,
+              soundPlayed,
+              setSoundPlayed,
+              isPaused,
+              setIsPaused,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<HomeComponent />} />
+              <Route path="/home" element={<LoggedInHomeComponent />} />
+              <Route path="/uplaodSongs" element={<UplaodSongComponent />} />
+              <Route path="/MyMusic" element={<MyMusicComponent />} />
+              <Route path="/Search" element={<SearchComponent />} />
+              <Route path="/Library" element={<LibraryComponent />} />
+              <Route
+                path="/playlist/:playlistId"
+                element={<SinglePlayListView />}
+              />{" "}
+              <Route path="*" element={<Navigate to="/home" />} />
+            </Routes>
           </songContext.Provider>
         ) : (
           <Routes>
