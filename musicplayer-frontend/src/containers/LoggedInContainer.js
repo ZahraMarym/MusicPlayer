@@ -11,6 +11,7 @@ import { useRef } from "react";
 import CreatePlaylistModals from "../modals/CreatePlaylistModals";
 import AddToPlaylistModal from "../modals/AddToPlaylistModal";
 import { makeAuthenticatedPOSTRequest } from "../utils/serverHelper";
+
 const LoggedInContainer = ({ children, currentActiveScreen }) => {
   //formating time
   const formatTime = (seconds) => {
@@ -26,6 +27,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   const [duration, setDuration] = useState(0);
   const [timer, setTimer] = useState(0);
   const [volume, setVolume] = useState(50); // Initial volume percentage
+  const [isLiked, setIsLiked] = useState(false);
   const {
     currentSong,
     setCurrentSong,
@@ -182,12 +184,15 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       document.body.removeChild(downloadLink);
     }
   };
-  //volume button
+
+  //volume
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
+    soundPlayed.volume(newVolume/100);
     setVolume(newVolume);
-    soundPlayed.volume(newVolume / 100); // Convert percentage to decimal
+    soundPlayed.volume(newVolume/100); // Convert percentage to decimal
   };
+
 
   return (
     <div className="w-full h-full">
@@ -363,15 +368,20 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
           </div>
 
           <div className="w-1/4 flex justify-end pr-4 space-x-4 items-center">
-            <div>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={volume}
-                onChange={handleVolumeChange}
-                className="bg-gray-900 appearance-none h-3 w-full md:w-32 rounded-md overflow-hidden"
+            <div className="flex justify-center items-center">
+              <Icon
+                icon="uil:volume"
+                className="mr-2 text-blue-900"
+                width="30"
               />
+               <input
+          type="range"
+          min={0}
+          max={100}
+          value={volume}
+          onChange={handleVolumeChange}
+          className="bg-gray-900 appearance-none h-3 w-full md:w-32 rounded-md overflow-hidden"
+        />
             </div>
             <Icon
               icon="ic:round-playlist-add"
@@ -382,9 +392,16 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
               }}
             />
             <Icon
-              icon="ph:heart-bold"
+              icon={isLiked ? "ri:heart-fill" : "ph:heart-bold"}
               fontSize={25}
-              className="cursor-pointer text-gray-500 hover:text-white"
+              className="cursor-pointer text-red-800 hover:text-white"
+              onClick={()=>{
+                if(isLiked)
+                setIsLiked(false);
+            else{
+              setIsLiked(true);
+            }}
+          }
             />
           </div>
         </div>

@@ -9,4 +9,5 @@ const songContext = createContext({
     setIsPaused: () => {},
 });
 
+
 export default songContext;
