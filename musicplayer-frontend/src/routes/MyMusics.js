@@ -8,17 +8,18 @@ import { makeAuthenticatedGETRequest } from "../utils/serverHelper";
 import { Howl, Howler } from "howler";
 import LoggedInContainer from "../containers/LoggedInContainer";
 import songContext from "../contexts/songContext";
+    const MyMusic = () => {
+      const [songData, setSongData] = useState([]);
+      //shuffled
+      useEffect(() => {
+        const getData = async () => {
+          const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
+          console.log(response);
+          setSongData(response);
+        };
+        getData();
+      },[]);
 
-const MyMusic = () => {
-  const [songData, setSongData] = useState([]);
-    useEffect(() => {
-    const getData = async () => {
-      const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
-      console.log(response);
-      setSongData(response);
-    };
-    getData();
-  },[]);
   return (
     <LoggedInContainer currentActiveScreen="MyMusic">
       <div className="text-blue-700 text-lg font-semibold pb-4 pt-8 pl-2">
@@ -26,7 +27,7 @@ const MyMusic = () => {
       </div>
       <div className="space-y-3 overflow-auto">
         {songData.map((item) => (
-          <SingleSongCard key={item.id} info={item} playSound={()=>{}} />
+          <SingleSongCard key={item.id} info={item} playSound={()=>{}}/>
         ))}
       </div>
     </LoggedInContainer>
@@ -34,3 +35,5 @@ const MyMusic = () => {
 };
 
 export default MyMusic;
+
+

@@ -52,6 +52,32 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   getData();
 },[]);
 
+//previous song
+
+//previous song
+const playPreviousSong = () =>{
+  const newIndex = getCurrentSongIndex()-1;
+  if(currentIndex<songList.length>0){
+
+  setCurrentIndex(newIndex)
+  const nextSong = songList[newIndex];
+
+  if (nextSong) {
+    setCurrentSong(nextSong);
+    changeSong(nextSong.track, newIndex);
+  }  
+}
+else{
+  const newIndex = songList.length-1;
+  const nextSong = songList[newIndex];
+  setCurrentIndex(newIndex);
+  changeSong(nextSong.track, newIndex);
+  setCurrentSong(nextSong);
+}
+
+};
+
+
   //nextSong
   const playNextSong = () =>{
     const newIndex = getCurrentSongIndex()+1;
@@ -386,6 +412,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 icon="fluent:previous-20-filled"
                 width="26"
                 className="cursor-pointer hover:text-gray-800"
+                onClick={playPreviousSong}
               />
               <Icon
                 icon={isPaused ? "gravity-ui:play" : "gravity-ui:pause"}

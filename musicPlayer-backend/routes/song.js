@@ -46,7 +46,6 @@ router.get(
   }
 );
 
-
 router.get(
   "/get/songname/:songName",
   passport.authenticate("jwt", { session: false }),
@@ -74,6 +73,28 @@ router.get(
 
       return res.status(200).json({ data: songs });
     } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+router.get(
+  "/api/shuffle",
+  passport.authenticate("jwt", { session: false }),
+  async (req,res) => {
+    try {
+      // Retrieve all songs from the MongoDB collection
+      const allSongs = await Song.find().populate("artist");
+      // Shuffle the songs
+      const shuffledSongs = allSongs.sort(() => Math.random() - 0.5);
+
+      // Update the order in the database
+      shuffledSongs.forEach(async (song, index) => {
+        await Song.findByIdAndUpdate(song._id, { $set: { order: index + 1 } });
+      });
+
+      return res.status(200).json({ data: allSongs });
+        } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
