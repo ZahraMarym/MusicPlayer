@@ -32,6 +32,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   const [songList, setSongList] = useState([]);
   const [currentIndex, setCurrentIndex]  = useState(0);
 
+
   const {
     currentSong,
     setCurrentSong,
@@ -52,10 +53,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   getData();
 },[]);
 
-//previous song
 
 //previous song
-const playPreviousSong = () =>{
+const playPreviousSong = () => {
   const newIndex = getCurrentSongIndex()-1;
   if(currentIndex<songList.length>0){
 
@@ -74,12 +74,11 @@ else{
   changeSong(nextSong.track, newIndex);
   setCurrentSong(nextSong);
 }
-
 };
 
 
   //nextSong
-  const playNextSong = () =>{
+  const playNextSong = () => {
     const newIndex = getCurrentSongIndex()+1;
     if(currentIndex<songList.length-1){
 
@@ -98,7 +97,14 @@ else{
     changeSong(nextSong.track, newIndex);
     setCurrentSong(nextSong);
   }
+  };
 
+  //repeat song
+  const repeat = () => {
+    console.log("repeat")
+    setIsPaused(false); 
+      setCurrentIndex(getCurrentSongIndex()-2);
+      changeSong(currentSong.track, currentIndex);
   };
 
   //currentSongIndex
@@ -180,11 +186,15 @@ else{
       src: [songSrc],
       html5: true,
     });
+    sound.on('end', () => {
+        playNextSong();
+    });
     setSoundPlayed(sound);
     sound.play();
     setIsPaused(false);
     index=getCurrentSongIndex();
   };
+  
 
   const pausedSound = () => {
     soundPlayed.pause();
@@ -430,6 +440,7 @@ else{
                 icon="ion:repeat-sharp"
                 width="29"
                 className="cursor-pointer hover:text-gray-800"
+                onClick={repeat}
               />
             </div>
             <div>
