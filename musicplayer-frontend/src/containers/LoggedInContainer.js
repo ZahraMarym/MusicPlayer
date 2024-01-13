@@ -11,6 +11,7 @@ import { useRef } from "react";
 import CreatePlaylistModals from "../modals/CreatePlaylistModals";
 import AddToPlaylistModal from "../modals/AddToPlaylistModal";
 import { makeAuthenticatedPOSTRequest } from "../utils/serverHelper";
+import { makeAuthenticatedGETRequest } from "../utils/serverHelper";
 
 const LoggedInContainer = ({ children, currentActiveScreen }) => {
   //formating time
@@ -28,6 +29,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   const [timer, setTimer] = useState(0);
   const [volume, setVolume] = useState(50); // Initial volume percentage
   const [isLiked, setIsLiked] = useState(false);
+  const [songList, setSongList] = useState([]);
+  const [currentIndex, setCurrentIndex]  = useState(0);
+
   const {
     currentSong,
     setCurrentSong,
@@ -38,6 +42,52 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   } = useContext(songContext);
   const firstUpdate = useRef(true);
 
+
+  //fetching songs
+  useEffect(() => {
+  const getData = async () => {
+    const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
+    setSongList(response);
+  };
+  getData();
+},[]);
+
+  //nextSong
+  const playNextSong = () =>{
+    const newIndex = getCurrentSongIndex()+1;
+    if(currentIndex<songList.length-1){
+
+    setCurrentIndex(newIndex)
+    const nextSong = songList[newIndex];
+  
+    if (nextSong) {
+      setCurrentSong(nextSong);
+      changeSong(nextSong.track, newIndex);
+    }  
+  }
+  else{
+    const newIndex = 0;
+    const nextSong = songList[newIndex];
+    setCurrentIndex(newIndex);
+    changeSong(nextSong.track, newIndex);
+    setCurrentSong(nextSong);
+  }
+
+  };
+
+  //currentSongIndex
+  const getCurrentSongIndex = () => {
+    if (currentSong) {
+      // Find the index of the current song in the songList array
+      setCurrentIndex(songList.findIndex(song => song._id === currentSong._id));
+  
+      // If the song is found, return its index
+      if (currentIndex !== -1) {
+        return currentIndex;
+      }
+    }
+  }
+  
   useLayoutEffect(() => {
     // the following if statement will prevent the useEffect from running on the first render.
     if (firstUpdate.current) {
@@ -96,7 +146,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     soundPlayed.play();
   };
 
-  const changeSong = (songSrc) => {
+  const changeSong = (songSrc, index) => {
     if (soundPlayed) {
       soundPlayed.stop();
     }
@@ -107,6 +157,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     setSoundPlayed(sound);
     sound.play();
     setIsPaused(false);
+    index=getCurrentSongIndex();
   };
 
   const pausedSound = () => {
@@ -191,6 +242,17 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     soundPlayed.volume(newVolume/100);
     setVolume(newVolume);
     soundPlayed.volume(newVolume/100); // Convert percentage to decimal
+  };
+
+  //progress bar change event
+  const handleProgressBarClick = (e) => {
+    const progressBar = e.target;
+    const clickPosition = e.clientX - progressBar.getBoundingClientRect().left;
+    const percentClicked = (clickPosition / progressBar.clientWidth) * 100;
+    const newTime = (percentClicked / 100) * duration;
+    setCurrentTime(newTime);
+    soundPlayed.seek(newTime);
+    setTimer(newTime);
   };
 
 
@@ -335,6 +397,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 icon="teenyicons:next-solid"
                 width="26"
                 className="cursor-pointer hover:text-gray-800"
+                onClick={playNextSong}
               />
               <Icon
                 icon="ion:repeat-sharp"
@@ -353,7 +416,8 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                       max={duration}
                       value={timer}
                       onChange={handleSeek}
-                      className="bg-gray-900 appearance-none h-2 w-96 text-black rounded-md overflow-hidden"
+                      onMouseDown={handleProgressBarClick}
+                      className="bg-gray-900 appearance-none h-2 w-96 text-black rounded-md overflow-hidden cursor-pointer"
                       style={{
                         background: `linear-gradient(to right, #4a5568 ${
                           (timer / duration) * 100

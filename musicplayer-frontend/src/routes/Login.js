@@ -20,20 +20,29 @@ const LoginComponent = () => {
   const navigate = useNavigate();
 
   const login = async () => {
-    const data = {
+   try{ const data = {
       email,
       password
     };
     const response = await makeUnauthenticatedPOSTRequest("/auth/login", data);
-    if (response && !response.err) {
+    if (response.error) {
+      if (response.error === "Invalid Credentials") {
+        alert("Invalid email or password");
+      } else {
+        alert("Login failed. Please try again.");
+      }
+    } else {
       const token = response.token;
       const date = new Date();
       date.setDate(date.getDate() + 30);
       setCookie("token", token, { path: "/", expires: date });
       alert("Success");
       navigate("/home");
-    } else {
-      alert("Failure");
+    }
+  }
+    catch (error) {
+      console.error("Login error:", error);
+      alert("An unexpected error occurred. Please try again later.");
     }
   };
 

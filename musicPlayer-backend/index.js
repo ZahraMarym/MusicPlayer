@@ -23,7 +23,7 @@ mongoose
   .connect(
     "mongodb+srv://admin:" +
       process.env.PASSWORD +
-      "@cluster0.2wlgie0.mongodb.net/?retryWrites=true&w=majority",
+      "@cluster0.2wlgie0.mongodb.net/",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then((x) => {
