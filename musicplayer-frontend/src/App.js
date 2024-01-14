@@ -13,12 +13,14 @@ import { useState } from "react";
 import SearchComponent from "./routes/Searchpage";
 import LibraryComponent from "./routes/Library";
 import SinglePlayListView from "./routes/SinglePlayListView";
+import Front from "./routes/front";
 
 function App() {
   const [currentSong, setCurrentSong] = useState(null);
   const [cookie, setCookie] = useCookies(["token"]);
   const [isPaused, setIsPaused] = useState(true);
   const [soundPlayed, setSoundPlayed] = useState(null);
+
 
   return (
     <div className="bg-gray-900 w-screen h-screen font-philosopher">
@@ -50,6 +52,7 @@ function App() {
           </songContext.Provider>
         ) : (
           <Routes>
+            <Route path="/front" element={<Front />} />
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignupComponent />} />
             <Route path="*" element={<Navigate to="/login" />} />

@@ -79,7 +79,7 @@ router.get(
   }
 );
 router.get(
-  "/api/shuffle",
+  "/shuffle",
   passport.authenticate("jwt", { session: false }),
   async (req,res) => {
     try {
@@ -100,5 +100,29 @@ router.get(
     }
   }
 );
+
+router.get(
+  '/get/allArtistsSongs',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      // Find all users (artists)
+      const artists = await User.find({});
+
+      // Iterate through each artist and get their songs
+      const allArtistsSongs = [];
+      for (const artist of artists) {
+        const songs = await Song.find({ artist: artist._id });
+        allArtistsSongs.push({ artist: artist, songs: songs });
+      }
+
+      return res.status(200).json({ data: allArtistsSongs });
+    } catch (error) {
+      console.error('Error fetching all artists songs:', error.message);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+);
+
 
 module.exports = router;

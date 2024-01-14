@@ -10,19 +10,17 @@ import LoggedInContainer from "../containers/LoggedInContainer";
 import songContext from "../contexts/songContext";
     const MyMusic = () => {
       const [songData, setSongData] = useState([]);
-      //shuffled
-      useEffect(() => {
+      useEffect(()=>{
         const getData = async () => {
           const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
           console.log(response);
           setSongData(response);
         };
         getData();
-      },[]);
-
+      },[])
   return (
     <LoggedInContainer currentActiveScreen="MyMusic">
-      <div className="text-blue-700 text-lg font-semibold pb-4 pt-8 pl-2">
+      <div className="text-blue-700 text-lg font-semibold py-4 px-2 md:pl-4">
         My Songs
       </div>
       <div className="space-y-3 overflow-auto">

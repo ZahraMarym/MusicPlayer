@@ -1,7 +1,7 @@
 import { useLayoutEffect } from "react";
 import IconTexts from "../components/shared/IconTexts";
 import HoverText from "../components/shared/hoverText";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { Howl, Howler } from "howler";
@@ -12,6 +12,7 @@ import CreatePlaylistModals from "../modals/CreatePlaylistModals";
 import AddToPlaylistModal from "../modals/AddToPlaylistModal";
 import { makeAuthenticatedPOSTRequest } from "../utils/serverHelper";
 import { makeAuthenticatedGETRequest } from "../utils/serverHelper";
+import { useCookies } from "react-cookie";
 
 const LoggedInContainer = ({ children, currentActiveScreen }) => {
   //formating time
@@ -30,8 +31,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   const [volume, setVolume] = useState(50); // Initial volume percentage
   const [isLiked, setIsLiked] = useState(false);
   const [songList, setSongList] = useState([]);
-  const [currentIndex, setCurrentIndex]  = useState(0);
-
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [cookies, setCookie] = useCookies(["token"]);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0); // Initial playback speed.
 
   const {
     currentSong,
@@ -42,84 +44,89 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     setIsPaused,
   } = useContext(songContext);
   const firstUpdate = useRef(true);
+  //color change
+  useEffect(() => {
+    document.body.classList.add("bg-black");
 
+    return () => {
+      document.body.classList.remove("bg-black");
+    };
+  }, []);
 
   //fetching songs
   useEffect(() => {
-  const getData = async () => {
-    const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
-    setSongList(response);
+    const getData = async () => {
+      const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
+      setSongList(response);
+    };
+    getData();
+  }, []);
+
+  //previous song
+  const playPreviousSong = () => {
+    setPlaybackSpeed(1);
+    const newIndex = getCurrentSongIndex() - 1;
+    if (currentIndex < songList.length > 0) {
+      setCurrentIndex(newIndex);
+      const nextSong = songList[newIndex];
+
+      if (nextSong) {
+        setCurrentSong(nextSong);
+        changeSong(nextSong.track, newIndex);
+      }
+    } else {
+      const newIndex = songList.length - 1;
+      const nextSong = songList[newIndex];
+      setCurrentIndex(newIndex);
+      changeSong(nextSong.track, newIndex);
+      setCurrentSong(nextSong);
+    }
   };
-  getData();
-},[]);
-
-
-//previous song
-const playPreviousSong = () => {
-  const newIndex = getCurrentSongIndex()-1;
-  if(currentIndex<songList.length>0){
-
-  setCurrentIndex(newIndex)
-  const nextSong = songList[newIndex];
-
-  if (nextSong) {
-    setCurrentSong(nextSong);
-    changeSong(nextSong.track, newIndex);
-  }  
-}
-else{
-  const newIndex = songList.length-1;
-  const nextSong = songList[newIndex];
-  setCurrentIndex(newIndex);
-  changeSong(nextSong.track, newIndex);
-  setCurrentSong(nextSong);
-}
-};
-
 
   //nextSong
   const playNextSong = () => {
-    const newIndex = getCurrentSongIndex()+1;
-    if(currentIndex<songList.length-1){
+    setPlaybackSpeed(1);
+    const newIndex = getCurrentSongIndex() + 1;
+    if (currentIndex < songList.length - 1) {
+      setCurrentIndex(newIndex);
+      const nextSong = songList[newIndex];
 
-    setCurrentIndex(newIndex)
-    const nextSong = songList[newIndex];
-  
-    if (nextSong) {
-      setCurrentSong(nextSong);
+      if (nextSong) {
+        setCurrentSong(nextSong);
+        changeSong(nextSong.track, newIndex);
+      }
+    } else {
+      const newIndex = 0;
+      const nextSong = songList[newIndex];
+      setCurrentIndex(newIndex);
       changeSong(nextSong.track, newIndex);
-    }  
-  }
-  else{
-    const newIndex = 0;
-    const nextSong = songList[newIndex];
-    setCurrentIndex(newIndex);
-    changeSong(nextSong.track, newIndex);
-    setCurrentSong(nextSong);
-  }
+      setCurrentSong(nextSong);
+    }
   };
 
   //repeat song
   const repeat = () => {
-    console.log("repeat")
-    setIsPaused(false); 
-      setCurrentIndex(getCurrentSongIndex()-2);
-      changeSong(currentSong.track, currentIndex);
+    console.log("repeat");
+    setIsPaused(false);
+    setCurrentIndex(getCurrentSongIndex() - 2);
+    changeSong(currentSong.track, currentIndex);
   };
 
   //currentSongIndex
   const getCurrentSongIndex = () => {
     if (currentSong) {
       // Find the index of the current song in the songList array
-      setCurrentIndex(songList.findIndex(song => song._id === currentSong._id));
-  
+      setCurrentIndex(
+        songList.findIndex((song) => song._id === currentSong._id)
+      );
+
       // If the song is found, return its index
       if (currentIndex !== -1) {
         return currentIndex;
       }
     }
-  }
-  
+  };
+
   useLayoutEffect(() => {
     // the following if statement will prevent the useEffect from running on the first render.
     if (firstUpdate.current) {
@@ -179,22 +186,23 @@ else{
   };
 
   const changeSong = (songSrc, index) => {
+    setPlaybackSpeed(1);
     if (soundPlayed) {
       soundPlayed.stop();
     }
     var sound = new Howl({
       src: [songSrc],
       html5: true,
+      rate: playbackSpeed,
     });
-    sound.on('end', () => {
-        playNextSong();
+    sound.on("end", () => {
+      playNextSong();
     });
     setSoundPlayed(sound);
     sound.play();
     setIsPaused(false);
-    index=getCurrentSongIndex();
+    index = getCurrentSongIndex();
   };
-  
 
   const pausedSound = () => {
     soundPlayed.pause();
@@ -275,9 +283,9 @@ else{
   //volume
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
-    soundPlayed.volume(newVolume/100);
+    soundPlayed.volume(newVolume / 100);
     setVolume(newVolume);
-    soundPlayed.volume(newVolume/100); // Convert percentage to decimal
+    soundPlayed.volume(newVolume / 100); // Convert percentage to decimal
   };
 
   //progress bar change event
@@ -290,7 +298,26 @@ else{
     soundPlayed.seek(newTime);
     setTimer(newTime);
   };
+  //log out
+  const logOut = () => {
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  };
 
+  // fastForward
+  const fastForward = () => {
+    console.log("forward" + playbackSpeed);
+    setPlaybackSpeed(playbackSpeed + 0.25);
+    soundPlayed.rate(playbackSpeed);
+  };
+  //rewind
+  const rewind = () => {
+    console.log("rewind" + playbackSpeed);
+    setPlaybackSpeed(playbackSpeed - 0.25);
+    if (playbackSpeed <= 0) {
+      setPlaybackSpeed(0);
+    }
+    soundPlayed.rate(playbackSpeed);
+  };
 
   return (
     <div className="w-full h-full">
@@ -309,8 +336,8 @@ else{
           addSongToPlaylist={addSongToPlaylist}
         />
       )}
-      <div className={`${currentSong ? "h-9/10" : "h-full"} w-full flex`}>
-        <div className="h-full w-1/5 bg-black bg-opacity-40 flex flex-col justify-between pb-10">
+      <div className={`flex ${currentSong ? 'flex-col lg:flex-row lg:h-9/10' : 'flex-row h-9/10'}`}>
+        <div className="lg:w-1/5 w-full bg-black bg-opacity-40 flex flex-col justify-between pb-10">
           <div>
             <div className="logoDiv p-5">
               <Icon
@@ -369,21 +396,29 @@ else{
             </div>
           </div>
         </div>
-        <div className="h-full w-4/5 overflow-auto">
-          <div className="navbar w-full flex h-1/10 bg-black text-white bg-opacity-20 items-center justify-end">
-            <div className="w-1/2 h-full flex ">
-              <div className="w-2/3 flex justify-around items-center">
-                <HoverText displayText={"Premium"} />
-                <HoverText displayText={"Support"} />
-                <HoverText displayText={"Download"} onClick={handleDownload} />
-                <div className="h-1/2 border-r border-gray-400"></div>
-              </div>
-              <div className="w-1/3 flex justify-around h-full items-center">
+        <div className="lg:w-4/5 overflow-auto">
+          <div className="navbar w-full flex lg:h-1/10 h-1/5 bg-black text-white bg-opacity-30 items-center justify-end">
+            <div className="w-full lg:w-full xl:w-1/3 h-full flex lg:flex-col flex-wrap justify-between items-center">
+              <div className="w-full lg:w-auto mb-2 mt-2 lg:mb-0 flex justify-center lg:justify-end items-center">
+              <div className="mr-3">
                 <Link to="/uplaodSongs">
-                  <HoverText displayText={"Upload Songs"} />
+                  <HoverText displayText={"Upload Songs"} className="mr-5"/>
                 </Link>
-                <div className="bg-blue-700 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold">
-                  ZM
+                </div >
+                <div className="mr-3">
+                  <HoverText
+                    displayText={"Download"}
+                    onClick={handleDownload}
+                  />
+                </div>
+                <div>
+                <HoverText
+                    displayText={"LogOut"}
+                    onClick={logOut}
+                  />
+                </div>
+                <div className="bg-blue-700 ml-5 text-blue-50 cursor-pointer h-10 w-10 mr-7 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold ml-2">
+                  <Icon icon="ph:user" />
                 </div>
               </div>
             </div>
@@ -395,14 +430,14 @@ else{
       {/* progress bar */}
 
       {currentSong && (
-        <div className="w-full h-1/10 bg-black bg-opacity-30 rounded-md px-4 flex text-blue-700 items-center px-4 border-t border-blue-900">
-          <div className="w-1/4 flex items-center">
+        <div className="w-full h-1/10 lg:h-1/7 bg-black bg-opacity-30 lg:rounded-md px-4 flex flex-col lg:flex-row text-blue-700 items-center px-4 border-t border-blue-900">
+          <div className="w-full lg:w-1/4 flex items-center flex-row">
             <img
               src={currentSong.thumbnail}
               alt="thumbnail"
-              className="h-14 w-14 rounded-lg"
+              className="h-14 w-14 opacity-0 lg:opacity-100 rounded-lg"
             />
-            <div className="ml-3 hover:underline cursor-pointer">
+            <div className="ml-3 hover:underline cursor-pointer opacity-0 lg:opacity-100">
               <div className="text-sm">{currentSong.name}</div>
               <div className="text-xs">
                 {currentSong.artist.firstName +
@@ -411,42 +446,43 @@ else{
               </div>
             </div>
           </div>
-          <div className="w-2/4 flex flex-col justify-center items-center h-full">
-            <div className="flex w-1/3 justify-between">
-              <Icon
-                icon="lucide:shuffle"
+          <div className="w-full lg:w-2/4 flex flex-col justify-center items-center h-full">
+            <div className="flex w-full lg:w-2/3 justify-between">
+            <Icon
+                icon="fluent:rewind-24-regular"
                 width="23"
-                className="cursor-pointer hover:text-gray-800"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
+                onClick={rewind}
               />
               <Icon
                 icon="fluent:previous-20-filled"
                 width="26"
-                className="cursor-pointer hover:text-gray-800"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
                 onClick={playPreviousSong}
               />
               <Icon
                 icon={isPaused ? "gravity-ui:play" : "gravity-ui:pause"}
                 width="30"
-                className="cursor-pointer hover:text-gray-800"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
                 onClick={togglePlayPause}
               />
               <Icon
                 icon="teenyicons:next-solid"
                 width="26"
-                className="cursor-pointer hover:text-gray-800"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
                 onClick={playNextSong}
               />
               <Icon
-                icon="ion:repeat-sharp"
-                width="29"
-                className="cursor-pointer hover:text-gray-800"
-                onClick={repeat}
+                icon="formkit:fastforward"
+                width="26"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
+                onClick={fastForward}
               />
             </div>
             <div>
               <div className="flex w-full justify-center">
                 <div className="flex justify-between">
-                  <div className="mx-3">{formatTime(timer)}</div>
+                  <div className="mx-3 opacity-0 lg:opacity-100">{formatTime(timer)}</div>
                   <div>
                     <input
                       type="range"
@@ -455,7 +491,7 @@ else{
                       value={timer}
                       onChange={handleSeek}
                       onMouseDown={handleProgressBarClick}
-                      className="bg-gray-900 appearance-none h-2 w-96 text-black rounded-md overflow-hidden cursor-pointer"
+                      className="bg-gray-900 appearance-none h-2 w-80 lg:w-96 text-black rounded-md overflow-hidden cursor-pointer"
                       style={{
                         background: `linear-gradient(to right, #4a5568 ${
                           (timer / duration) * 100
@@ -463,13 +499,13 @@ else{
                       }}
                     />
                   </div>
-                  <div className="mx-3">{formatTime(duration)}</div>
+                  <div className="mx-3 opacity-0 lg:opacity-100">{formatTime(duration)}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="w-1/4 flex justify-end pr-4 space-x-4 items-center">
+          <div className="w-full lg:w-1/4 flex justify-end pr-4 space-x-4 items-center">
             <div className="flex justify-center items-center">
               <Icon
                 icon="uil:volume"
@@ -492,6 +528,12 @@ else{
               onClick={() => {
                 setAddToPlaylistModalOpen(true);
               }}
+            />
+            <Icon
+              icon="ion:repeat-sharp"
+              width="29"
+              className="cursor-pointer hover:text-gray-800"
+              onClick={repeat}
             />
             <Icon
               icon={isLiked ? "ri:heart-fill" : "ph:heart-bold"}

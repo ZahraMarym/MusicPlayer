@@ -41,8 +41,8 @@ const UplaodSong = () => {
           <div className="text-2xl font-semibold mb-5 text-white mt-8">
             Upload Your Songs
           </div>
-          <div className="w-2/3 flex space-x-3">
-            <div className="w-1/2">
+          <div className="flex flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0">
+            <div className="w-1/2 md:w-1/2">
               <Textfield
                 label={"Name"}
                 labelClassName={"text-white"}
@@ -52,7 +52,7 @@ const UplaodSong = () => {
                 className={"text-blue-700"}
               />
             </div>
-            <div className="w-1/2">
+            <div className="w-1/2 md:w-1/2">
               <Textfield
                 label={"Thumbnail"}
                 labelClassName={"text-white"}
@@ -65,7 +65,7 @@ const UplaodSong = () => {
           </div>
           <div className="py-5">
             {uploadedSongFileName ? (
-              <div className="bg-transparent border border-blue-700 text-white rounded-full p-3 w-1/3">
+              <div className="bg-transparent border border-blue-700 text-white rounded-full p-3 w-full md:w-1/3">
                 <IconTexts
                   iconName={"akar-icons:play"}
                   displayText={uploadedSongFileName.substring(0, 35)}
@@ -79,7 +79,7 @@ const UplaodSong = () => {
             )}
           </div>
           <div
-            className="bg-blue-700 text-white w-40 flex items-center justify-center p-4 rounded-full cursor-pointer font-semibold"
+            className="bg-blue-700 text-white w-full md:w-40 flex items-center justify-center p-4 rounded-full cursor-pointer font-semibold"
             onClick={submitSong}
           >
             Submit Song

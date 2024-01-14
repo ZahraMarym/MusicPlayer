@@ -14,11 +14,11 @@ const AddToPlaylistModal = ({closeModal, addSongToPlaylist}) => {
 
     return (
         <div
-            className="absolute bg-black w-full h-full bg-opacity-20 flex justify-center items-center"
+            className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center"
             onClick={closeModal}
         >
             <div
-                className="bg-black text-gray-400 bg-opacity-50 w-1/3 rounded-md p-8"
+                className="bg-black text-gray-400 bg-opacity-50 w-screen lg:w-1/2 xl:w-1/2 rounded-md p-8 overflow-auto"
                 onClick={(e) => {
                     e.stopPropagation();
                 }}

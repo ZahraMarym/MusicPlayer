@@ -75,13 +75,13 @@ const SingleSongCard = ({ info, playSound }) => {
         }}
       ></div>
       <div className="flex w-full">
-        <div className="text-blue-600 flex flex-col justify-center pl-4 w-5/6">
+        <div className="text-blue-600 flex flex-col justify-center pl-4 md:w-5/6">
           <div className="cursor-pointer hover:underline">{info.name}</div>
           <div className="text-xs text-gray-400 cursor-pointer hover:underline">
             {info.artist.firstName + " " + info.artist.lastName}
           </div>
         </div>
-        <div className="w-1/6 justify-center flex items-center text-gray-400 text-sm text-opacity-30">
+        <div className="w-1/6 md:justify-center md:flex md:items-center text-gray-400 text-sm text-opacity-30">
           <div>
             <Icon
               icon={ currentIcon}

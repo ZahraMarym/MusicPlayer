@@ -18,16 +18,16 @@ const CreatePlaylistModals = ({closeModal}) => {
 
     return (
         <div
-        className="absolute bg-black w-full h-full bg-opacity-20 flex justify-center items-center"
+        className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center"
         onClick={closeModal}
     >
         <div
-            className="bg-black text-gray-400 bg-opacity-50 w-1/3 rounded-md p-8"
+            className="bg-black text-gray-400 bg-opacity-50 w-full md:w-2/3 lg:w-1/2 xl:w-1/3 rounded-md p-4 md:p-8 overflow-auto text-sm md:text-base lg:text-lg xl:text-xl"
             onClick={(e) => {
                 e.stopPropagation();
             }}
         >
-            <div className="text-gray-200 mb-5 font-semibold text-lg">
+            <div className="text-gray-200 mb-4 font-semibold text-base md:text-lg lg:text-xl xl:text-2xl">
                 Create Playlist
             </div>
             <div className="space-y-4 flex flex-col justify-center items-center">

@@ -25,7 +25,7 @@ const SinglePlaylistView = () => {
                     <div className="text-white text-xl pt-8 font-semibold">
                         {playlistDetails.name}
                     </div>
-                    <div className="pt-10 space-y-3">
+                    <div className="pt-6 space-y-3 md:pt-10 md:space-y-6">
                         {playlistDetails.songs.map((item) => {
                             return (
                                 <SingleSongCard
