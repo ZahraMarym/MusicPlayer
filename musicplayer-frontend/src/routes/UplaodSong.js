@@ -28,15 +28,15 @@ const UplaodSong = () => {
   const submitSong = async () => {
     const data = { name, thumbnail, track: playlistUrl };
     const response = await makeAuthenticatedPOSTRequest("/song/create", data);
-    if (response.err) {
-      alert("Could not create song");
+    if (response.error) {
+      alert("Invalid Uplaod");
       return;
     }
     alert("Success");
     navigate("/home");
   };
   return (
-   <LoggedInContainer currentActiveScreen={"/UploadSong"}>
+   <LoggedInContainer currentActiveScreen={"/UplaodSong"}>
           <div className="content p-5 pt-0 overflow-auto">
           <div className="text-2xl font-semibold mb-5 text-white mt-8">
             Upload Your Songs

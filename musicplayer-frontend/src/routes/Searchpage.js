@@ -9,11 +9,27 @@ const SearchComponent = () => {
   const [songData, setSongData] = useState([]);
 
   const searchSong = async () => {
-    // This function will call the search api
-    const response = await makeAuthenticatedGETRequest(
-      "/song/get/songname/" + searchText
-    );
-    setSongData(response.data);
+    try {
+      // This function will call the search API
+      const response = await makeAuthenticatedGETRequest(
+        "/song/get/songname/" + searchText
+      );
+  
+      // Check if the response contains data
+      if (response.data) {
+        setSongData(response.data);
+      } else {
+        // Handle the case when the response does not contain data
+        console.error("No data found for the given search.");
+        // Optionally, you can set an empty array or do something else.
+        setSongData([]);
+      }
+    } catch (error) {
+      // Handle the error, e.g., display an error message to the user
+      console.error("Error occurred during search:", error.message);
+      // Optionally, you can set an empty array or do something else.
+      setSongData([]);
+    }
   };
 
   return (

@@ -119,7 +119,7 @@ const SignupComponent = () => {
           Already have an account?
         </div>
         <div className="border border-blue-600 py-4 text-gray-500 font-bold rounded-full w-full flex items-center justify-center">
-          <Link to="/login">Log In instaed!</Link>
+          <Link to="/login">Log In instead!</Link>
         </div>
       </div>
     </div>

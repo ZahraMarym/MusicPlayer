@@ -39,19 +39,18 @@ const LoggedInHome = () => {
   return (
     <LoggedInContainer currentActiveScreen="home">
         <div className="text-white text-xl pt-8 font-semibold">Your PlayLists</div>
-      <div className="w-full py-5 grid gap-5 grid-cols-5">
-      {playList.map((item) => {
-                    return (
-                        <Card
-                            key={JSON.stringify(item)}
-                            title={item.name}
-                            description=""
-                            imgUrl={item.thumbnail}
-                            playlistId={item._id}
-                        />
-                    );
-                })}
-                </div>
+        <div className="grid gap-4 cursor-pointer sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {/* Mapping through myPlaylists to render each playlist */}
+      {playList.map((item) => (
+        <Card
+          key={item._id}  
+          title={item.name}
+          description="" 
+          imgUrl={item.thumbnail}
+          playlistId={item._id}
+        />
+      ))}
+    </div>
           <div className="w-full text-white text-xl pt-8 font-semibold">
             Your Songs
           </div>
@@ -61,23 +60,20 @@ const LoggedInHome = () => {
     </LoggedInContainer>
   );
 };
-
 const Card = ({ title, description, imgUrl , playlistId}) => {
   const navigate = useNavigate();
   return (
-    <div className="bg-black bg-opacity-40 w-full p-4 rounded-lg"
+    <div className="bg-black bg-opacity-40 w-full p-4 rounded-lg items-center flex flex-row justify-center"
     onClick={() => {
       navigate("/playlist/" + playlistId);
       console.log("")
   }}>
       <div className="pb-4 pt-2">
-        <img className="w-full rounded-md" src={imgUrl} alt="label" />
+        <img className="h-1/4 rounded-md" src={imgUrl} alt="label" />
       </div>
-      <div className="text-white font-semibold py-3">{title}</div>
-      <div className="text-gray-500 text-sm">{description}</div>
+      <div className="text-white font-semibold py-3  ml-3">{title}</div>
     </div>
   );
 };
-
 
 export default LoggedInHome;

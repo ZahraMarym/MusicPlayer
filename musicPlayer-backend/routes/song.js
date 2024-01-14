@@ -9,14 +9,19 @@ router.post(
   "/create",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    const { name, thumbnail, track } = req.body;
-    if (!name || !thumbnail || !track) {
-      return res.status(400).json({ error: "Missing fields" });
+    try{
+      const { name, thumbnail, track } = req.body;
+      if (!name || !thumbnail || !track) {
+        return res.status(400).json({ error: "Missing fields" });
+      }
+      const artist = req.user._id;
+      const songDetails = { name, thumbnail, track, artist };
+      const createSong = await Song.create(songDetails);
+      return res.status(200).json(createSong);
     }
-    const artist = req.user._id;
-    const songDetails = { name, thumbnail, track, artist };
-    const createSong = await Song.create(songDetails);
-    return res.status(200).json(createSong);
+    catch(error){
+      return res.status(400).json({ error: "Invalid Update" });
+    }
   }
 );
 //route to get songs

@@ -277,6 +277,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
+      
     }
   };
 
@@ -300,6 +301,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   };
   //log out
   const logOut = () => {
+    if(currentSong){
+      pausedSound();
+    }
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
@@ -336,7 +340,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
           addSongToPlaylist={addSongToPlaylist}
         />
       )}
-      <div className={`flex ${currentSong ? 'flex-col lg:flex-row lg:h-9/10' : 'flex-row h-9/10'}`}>
+      <div className={`flex ${currentSong ? 'flex-col lg:flex-row lg:h-9/10 ' : 'flex-row h-full'}`}>
         <div className="lg:w-1/5 w-full bg-black bg-opacity-40 flex flex-col justify-between pb-10">
           <div>
             <div className="logoDiv p-5">
@@ -382,10 +386,10 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 }}
               />
               <IconTexts
-                iconName={"lucide:heart"}
-                displayText={"Liked Songs"}
-                targetLink=""
-                active={currentActiveScreen === "LikedSong"}
+                iconName={"iconoir:upload-data-window"}
+                displayText={"Uplaod Songs"}
+                targetLink={"/uplaodSongs"}
+                active={currentActiveScreen === "UplaodSong"}
               />
             </div>
           </div>
@@ -400,24 +404,19 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
           <div className="navbar w-full flex lg:h-1/10 h-1/5 bg-black text-white bg-opacity-30 items-center justify-end">
             <div className="w-full lg:w-full xl:w-1/3 h-full flex lg:flex-col flex-wrap justify-between items-center">
               <div className="w-full lg:w-auto mb-2 mt-2 lg:mb-0 flex justify-center lg:justify-end items-center">
-              <div className="mr-3">
-                <Link to="/uplaodSongs">
-                  <HoverText displayText={"Upload Songs"} className="mr-5"/>
-                </Link>
-                </div >
-                <div className="mr-3">
+                <div className="mr-5 border-b border-gray-500 pb-2">
                   <HoverText
                     displayText={"Download"}
                     onClick={handleDownload}
                   />
                 </div>
-                <div>
+                <div className="border border-gray-500 p-2 mr-3">
                 <HoverText
                     displayText={"LogOut"}
                     onClick={logOut}
                   />
                 </div>
-                <div className="bg-blue-700 ml-5 text-blue-50 cursor-pointer h-10 w-10 mr-7 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold ml-2">
+                <div className="bg-blue-700 ml-5 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold ml-2">
                   <Icon icon="ph:user" />
                 </div>
               </div>
