@@ -13,6 +13,7 @@ import AddToPlaylistModal from "../modals/AddToPlaylistModal";
 import { makeAuthenticatedPOSTRequest } from "../utils/serverHelper";
 import { makeAuthenticatedGETRequest } from "../utils/serverHelper";
 import { useCookies } from "react-cookie";
+import SingleSongCard from "../components/shared/SingleSongCard";
 
 const LoggedInContainer = ({ children, currentActiveScreen }) => {
   //formating time
@@ -34,6 +35,8 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cookies, setCookie] = useCookies(["token"]);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0); // Initial playback speed.
+  const [shuffledList, setIsShuffledList] = useState([]); // Initial playback speed.
+  const [shuffled, setIsShuffled] = useState(false);
 
   const {
     currentSong,
@@ -54,13 +57,14 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   }, []);
 
   //fetching songs
-  useEffect(() => {
+  useEffect(()=>{
     const getData = async () => {
       const response = await makeAuthenticatedGETRequest("/song/get/mySongs");
+      console.log(response);
       setSongList(response);
     };
     getData();
-  }, []);
+  },[]);
 
   //previous song
   const playPreviousSong = () => {
@@ -277,7 +281,6 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      
     }
   };
 
@@ -301,7 +304,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
   };
   //log out
   const logOut = () => {
-    if(currentSong){
+    if (currentSong) {
       pausedSound();
     }
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -323,6 +326,15 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
     soundPlayed.rate(playbackSpeed);
   };
 
+  //shuffle
+  const shuffle = async () => {
+    console.log("shuffled");
+    const response = await makeAuthenticatedGETRequest("/song/shuffle");
+    setIsShuffledList(response.data);
+    setSongList(response.data);
+    console.log(songList);
+  };
+
   return (
     <div className="w-full h-full">
       {createPlaylistModalOpen && (
@@ -340,8 +352,12 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
           addSongToPlaylist={addSongToPlaylist}
         />
       )}
-      <div className={`flex ${currentSong ? 'flex-col lg:flex-row lg:h-9/10 ' : 'flex-row h-full'}`}>
-        <div className="lg:w-1/5 w-full bg-black bg-opacity-40 flex flex-col justify-between pb-10">
+      <div
+        className={`flex ${
+          currentSong ? "flex-col lg:flex-row lg:h-9/10 " : "flex-row h-full"
+        }`}
+      >
+        <div className="md:w-2/5 lg:w-1/5 w-full bg-black bg-opacity-40 flex flex-col justify-between pb-10">
           <div>
             <div className="logoDiv p-5">
               <Icon
@@ -411,10 +427,7 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                   />
                 </div>
                 <div className="border border-gray-500 p-2 mr-3">
-                <HoverText
-                    displayText={"LogOut"}
-                    onClick={logOut}
-                  />
+                  <HoverText displayText={"LogOut"} onClick={logOut} />
                 </div>
                 <div className="bg-blue-700 ml-5 text-blue-50 cursor-pointer h-10 w-10 px-2 rounded-full font-semibold flex items-center justify-center hover:bg-transparent border border-blue-700 font-semibold ml-2">
                   <Icon icon="ph:user" />
@@ -422,7 +435,29 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
               </div>
             </div>
           </div>
-          <div className="content p-5 pt-0 overflow-auto">{children}</div>
+          <div className="content p-5 pt-0 overflow-auto">
+            {currentActiveScreen === "MyMusic" ? (
+              <>
+                <div className="text-blue-700 text-lg font-semibold py-4 px-2 md:pl-4">
+                  My Songs
+                </div>
+                <div className="space-y-3 overflow-auto">
+                  {Array.isArray(songList) &&
+                    songList.map((item) => (
+                      <SingleSongCard
+                        key={item.id}
+                        info={item}
+                        playSound={() => {}}
+                      />
+                    ))}
+                </div>
+              </>
+            ) : (
+              <>
+                {children}
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -447,7 +482,16 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
           </div>
           <div className="w-full lg:w-2/4 flex flex-col justify-center items-center h-full">
             <div className="flex w-full lg:w-2/3 justify-between">
-            <Icon
+              <Icon
+                icon="mi:shuffle"
+                width="29"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
+                onClick={() => {
+                  setIsShuffled(true);
+                  shuffle();
+                }}
+              />
+              <Icon
                 icon="fluent:rewind-24-regular"
                 width="23"
                 className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
@@ -477,11 +521,19 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
                 onClick={fastForward}
               />
+              <Icon
+                icon="ion:repeat-sharp"
+                width="29"
+                className="cursor-pointer hover:text-gray-800 w-96 lg:w-26"
+                onClick={repeat}
+              />
             </div>
             <div>
               <div className="flex w-full justify-center">
                 <div className="flex justify-between">
-                  <div className="mx-3 opacity-0 lg:opacity-100">{formatTime(timer)}</div>
+                  <div className="mx-3 opacity-0 lg:opacity-100">
+                    {formatTime(timer)}
+                  </div>
                   <div>
                     <input
                       type="range"
@@ -498,7 +550,9 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                       }}
                     />
                   </div>
-                  <div className="mx-3 opacity-0 lg:opacity-100">{formatTime(duration)}</div>
+                  <div className="mx-3 opacity-0 lg:opacity-100">
+                    {formatTime(duration)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -511,14 +565,14 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
                 className="mr-2 text-blue-900"
                 width="30"
               />
-               <input
-          type="range"
-          min={0}
-          max={100}
-          value={volume}
-          onChange={handleVolumeChange}
-          className="bg-gray-900 appearance-none h-3 w-full md:w-32 rounded-md overflow-hidden"
-        />
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={volume}
+                onChange={handleVolumeChange}
+                className="bg-gray-900 appearance-none h-3 w-full md:w-32 rounded-md overflow-hidden"
+              />
             </div>
             <Icon
               icon="ic:round-playlist-add"
@@ -529,22 +583,15 @@ const LoggedInContainer = ({ children, currentActiveScreen }) => {
               }}
             />
             <Icon
-              icon="ion:repeat-sharp"
-              width="29"
-              className="cursor-pointer hover:text-gray-800"
-              onClick={repeat}
-            />
-            <Icon
               icon={isLiked ? "ri:heart-fill" : "ph:heart-bold"}
               fontSize={25}
               className="cursor-pointer text-red-800 hover:text-white"
-              onClick={()=>{
-                if(isLiked)
-                setIsLiked(false);
-            else{
-              setIsLiked(true);
-            }}
-          }
+              onClick={() => {
+                if (isLiked) setIsLiked(false);
+                else {
+                  setIsLiked(true);
+                }
+              }}
             />
           </div>
         </div>

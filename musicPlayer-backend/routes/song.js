@@ -89,7 +89,7 @@ router.get(
   async (req,res) => {
     try {
       // Retrieve all songs from the MongoDB collection
-      const allSongs = await Song.find().populate("artist");
+      const allSongs = await Song.find({ artist: req.user._id }).populate("artist");
       // Shuffle the songs
       const shuffledSongs = allSongs.sort(() => Math.random() - 0.5);
 
@@ -106,6 +106,24 @@ router.get(
   }
 );
 
+//get all songs
+router.get(
+  '/get/allSongs',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      // Find all songs
+      const allSongs = await Song.find({}).populate("artist");
+
+      return res.status(200).json({ data: allSongs });
+    } catch (error) {
+      console.error('Error fetching all songs:', error.message);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+);
+
+
 router.get(
   '/get/allArtistsSongs',
   passport.authenticate('jwt', { session: false }),
@@ -114,12 +132,26 @@ router.get(
       // Find all users (artists)
       const artists = await User.find({});
 
-      // Iterate through each artist and get their songs
-      const allArtistsSongs = [];
-      for (const artist of artists) {
-        const songs = await Song.find({ artist: artist._id });
-        allArtistsSongs.push({ artist: artist, songs: songs });
-      }
+      // Get songs grouped by artist
+      const allArtistsSongs = await Song.aggregate([
+        {
+          $match: { artist: { $in: artists.map((artist) => artist._id) } },
+        },
+        {
+          $group: {
+            _id: '$artist',
+            artist: { $first: '$artist' },
+            songs: { $push: { title: '$title', _id: '$_id' } },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            artist: 1,
+            songs: 1,
+          },
+        },
+      ]);
 
       return res.status(200).json({ data: allArtistsSongs });
     } catch (error) {
