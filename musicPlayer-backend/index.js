@@ -17,7 +17,7 @@ const app = express();
 const port = 8000;
 
 app.use(cors({
-  origin:["https://music-player-xi-mauve.vercel.app/"],
+  origin:["https://music-player-frontend-zeta.vercel.app/front"],
   methods:["POST","GET"],
   credentials:true
 }));
