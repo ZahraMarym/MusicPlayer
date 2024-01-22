@@ -43,7 +43,7 @@ const LoggedInHome = () => {
   return (
     <LoggedInContainer currentActiveScreen="home">
       <div className="text-white text-xl pt-8 font-semibold">
-        Your PlayLists
+         PlayLists
       </div>
       <div className="grid gap-4 cursor-pointer sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {/* Mapping through myPlaylists to render each playlist */}
@@ -58,7 +58,7 @@ const LoggedInHome = () => {
         ))}
       </div>
       <div className="w-full text-white text-xl pt-8 font-semibold">
-        Your Songs
+        Suggested Songs
       </div>
       {Array.isArray(songData) &&
         songData.map((item) => (

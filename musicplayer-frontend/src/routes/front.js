@@ -90,7 +90,7 @@ const Front = () => {
   };
 
   return (
-    <div classNam="w-screen h-screen bg-gray-900">
+    <div className="w-screen h-screen bg-gray-900">
       {/* navbar */}
       <div className="">
         <nav className="bg-gray-900 border-b border-gray-300 opacity-90 p-4">

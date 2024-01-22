@@ -2,7 +2,6 @@ import "./App.css";
 import "./output.css";
 import LoginComponent from "./routes/Login";
 import SignupComponent from "./routes/Signup";
-import HomeComponent from "./routes/home";
 import LoggedInHomeComponent from "./routes/LoggedInHome";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -37,7 +36,7 @@ function App() {
             }}
           >
             <Routes>
-              <Route path="/" element={<HomeComponent />} />
+              <Route path="/" element={<LoggedInHomeComponent />} />
               <Route path="/home" element={<LoggedInHomeComponent />} />
               <Route path="/uplaodSongs" element={<UplaodSongComponent />} />
               <Route path="/MyMusic" element={<MyMusicComponent />} />
@@ -55,7 +54,7 @@ function App() {
             <Route path="/front" element={<Front />} />
             <Route path="/login" element={<LoginComponent />} />
             <Route path="/signup" element={<SignupComponent />} />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/front" />} />
           </Routes>
         )}
       </BrowserRouter>
