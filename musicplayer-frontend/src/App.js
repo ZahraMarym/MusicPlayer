@@ -13,12 +13,15 @@ import SearchComponent from "./routes/Searchpage";
 import LibraryComponent from "./routes/Library";
 import SinglePlayListView from "./routes/SinglePlayListView";
 import Front from "./routes/front";
+import axios from "axios";
 
 function App() {
   const [currentSong, setCurrentSong] = useState(null);
   const [cookie, setCookie] = useCookies(["token"]);
   const [isPaused, setIsPaused] = useState(true);
   const [soundPlayed, setSoundPlayed] = useState(null);
+  axios.defaults.withCredentials=true;
+
 
 
   return (
