@@ -16,7 +16,11 @@ require("dotenv").config();
 const app = express();
 const port = 8000;
 
-app.use(cors());
+app.use(cors({
+  origin:["https://music-player-seven-alpha.vercel.app/"],
+  methods:["POST","GET"],
+  credentials:true
+}));
 app.use(express.json());
 //connecting to the database using mongoose
 mongoose
